@@ -64,44 +64,63 @@ const InternetPackages = () => {
 
     setIsLoading(true);
 
-    // Simulate payment processing
+    // Flutterwave integration
     try {
-      // Here you would integrate with Flutterwave or M-Pesa
-      // For demo purposes, we'll simulate a successful payment
-      
-      const transaction = {
-        id: `TX_${Date.now()}`,
-        customerId,
-        phone: `+254${phone}`,
-        package: selectedPackage?.name,
-        duration: selectedPackage?.duration,
-        data: selectedPackage?.data,
+      (window as any).FlutterwaveCheckout({
+        public_key: "FLWPUBK_TEST-4c8081f4bb65cf1bd5472483b60cc65e-X",
+        tx_ref: `TX_${Date.now()}`,
         amount: selectedPackage?.price,
-        timestamp: new Date().toISOString(),
-        status: 'completed'
-      };
+        currency: "KES",
+        payment_options: "mpesa,card",
+        customer: {
+          email: "customer@starnet.com",
+          phone_number: `+254${phone}`,
+          name: `Customer ${customerId}`,
+        },
+        callback: function (data: any) {
+          setIsLoading(false);
+          
+          const transaction = {
+            id: data.transaction_id,
+            customerId,
+            phone: `+254${phone}`,
+            package: selectedPackage?.name,
+            duration: selectedPackage?.duration,
+            data: selectedPackage?.data,
+            amount: selectedPackage?.price,
+            timestamp: new Date().toISOString(),
+            status: 'completed'
+          };
 
-      // Store transaction in localStorage (in real app, send to backend)
-      const existingTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-      existingTransactions.push(transaction);
-      localStorage.setItem('transactions', JSON.stringify(existingTransactions));
+          // Store transaction in localStorage
+          const existingTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+          existingTransactions.push(transaction);
+          localStorage.setItem('transactions', JSON.stringify(existingTransactions));
 
-      toast({
-        title: "Payment Successful! ✅",
-        description: `Transaction ID: ${transaction.id}`,
+          toast({
+            title: "Payment Successful! ✅",
+            description: `Transaction ID: ${data.transaction_id}`,
+          });
+
+          setIsDialogOpen(false);
+          setPhone("");
+          setSelectedPackage(null);
+        },
+        onclose: function() {
+          setIsLoading(false);
+        },
+        customizations: {
+          title: "Starnet Kenya",
+          description: `${selectedPackage?.duration} - ${selectedPackage?.data} Package`,
+        },
       });
-
-      setIsDialogOpen(false);
-      setPhone("");
-      setSelectedPackage(null);
     } catch (error) {
+      setIsLoading(false);
       toast({
         title: "Payment Failed",
         description: "Please try again or contact support",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
