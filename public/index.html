@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STARNET KENYA</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-link active">Internet Packages</a>
+        <a href="admin.html" class="nav-link">Admin Panel</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="card">
+            <!-- Header -->
+            <div class="header">
+                <div class="title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="m4.93 4.93 4.24 4.24"/>
+                        <path d="m14.83 9.17 4.24-4.24"/>
+                        <path d="m14.83 14.83 4.24 4.24"/>
+                        <path d="m9.17 14.83-4.24 4.24"/>
+                    </svg>
+                    STARNET KENYA
+                </div>
+                <div class="subtitle">
+                    <p class="subtitle-main">Affordable Internet Packages</p>
+                    <p class="subtitle-small">Available on all networks</p>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="m2 17 20-10"/>
+                        <path d="m6 14 4 4 4-7"/>
+                    </svg>
+                    <span>Fast Speed</span>
+                </div>
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 12l2 2 4-4"/>
+                        <path d="M21 12c-1.5-1.5-4-4-9-4s-7.5 2.5-9 4c1.5 1.5 4 4 9 4s7.5-2.5 9-4"/>
+                    </svg>
+                    <span>Secure</span>
+                </div>
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="m22 21-3-3"/>
+                    </svg>
+                    <span>24/7 Support</span>
+                </div>
+            </div>
+
+            <!-- Packages -->
+            <div class="packages" id="packages">
+                <!-- Packages will be loaded by JavaScript -->
+            </div>
+
+            <!-- Support Section -->
+            <div class="support-section">
+                <p class="support-text">Need help with your purchase?</p>
+                <button class="whatsapp-btn" onclick="handleWhatsAppSupport()">
+                    💬 WhatsApp Support
+                </button>
+            </div>
+
+            <!-- Info -->
+            <div class="info">
+                <p>Secure Payment Processing</p>
+                <p class="success-text">✅ Till number copied to clipboard!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Enter Your Details</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="customerId">Customer ID</label>
+                    <input type="text" id="customerId" readonly class="input-readonly">
+                </div>
+
+                <div class="input-group">
+                    <label for="phone">Phone Number</label>
+                    <div class="phone-input">
+                        <span class="phone-prefix">+254</span>
+                        <input type="tel" id="phone" placeholder="712345678" class="phone-number">
+                    </div>
+                </div>
+
+                <div class="package-summary" id="packageSummary">
+                    <!-- Package details will be shown here -->
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="handleSubmit()" id="payBtn">
+                        Pay Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Processing Payment...</p>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
