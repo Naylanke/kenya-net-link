@@ -52,6 +52,67 @@ const InternetPackages = () => {
     window.open(whatsappUrl, '_blank');
   };
 
+  // Safaricom Daraja API integration
+  const getAccessToken = async () => {
+    const consumerKey = "nLuyXezRJgm3fpxYDCjQE1vxLo4cz4Y9tSV3tdZAhjRl7pGT";
+    const consumerSecret = "7LrWGPDLkLg7FPcJHgq8OZjVEoE1AnuLEUzq6TTX6nBw3TxqNf9qz6dPnqm3udRa";
+    
+    const credentials = btoa(`${consumerKey}:${consumerSecret}`);
+    
+    try {
+      const response = await fetch("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials", {
+        method: "GET",
+        headers: {
+          "Authorization": `Basic ${credentials}`,
+        },
+      });
+      
+      const data = await response.json();
+      return data.access_token;
+    } catch (error) {
+      console.error("Error getting access token:", error);
+      throw error;
+    }
+  };
+
+  const initiateMpesaPayment = async (accessToken: string) => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, 14);
+    const shortCode = "174379"; // Test shortcode
+    const passkey = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"; // Test passkey
+    const password = btoa(`${shortCode}${passkey}${timestamp}`);
+
+    const paymentData = {
+      BusinessShortCode: shortCode,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: "CustomerPayBillOnline",
+      Amount: selectedPackage?.price,
+      PartyA: `254${phone}`,
+      PartyB: shortCode,
+      PhoneNumber: `254${phone}`,
+      CallBackURL: "https://mydomain.com/callback",
+      AccountReference: customerId,
+      TransactionDesc: `${selectedPackage?.duration} - ${selectedPackage?.data} Package`,
+    };
+
+    try {
+      const response = await fetch("https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentData),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error initiating M-Pesa payment:", error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!phone || phone.length < 8) {
       toast({
@@ -64,63 +125,52 @@ const InternetPackages = () => {
 
     setIsLoading(true);
 
-    // Flutterwave integration
     try {
-      (window as any).FlutterwaveCheckout({
-        public_key: "FLWPUBK_TEST-4c8081f4bb65cf1bd5472483b60cc65e-X",
-        tx_ref: `TX_${Date.now()}`,
-        amount: selectedPackage?.price,
-        currency: "KES",
-        payment_options: "mpesa,card",
-        customer: {
-          email: "customer@starnet.com",
-          phone_number: `+254${phone}`,
-          name: `Customer ${customerId}`,
-        },
-        callback: function (data: any) {
-          setIsLoading(false);
-          
-          const transaction = {
-            id: data.transaction_id,
-            customerId,
-            phone: `+254${phone}`,
-            package: selectedPackage?.name,
-            duration: selectedPackage?.duration,
-            data: selectedPackage?.data,
-            amount: selectedPackage?.price,
-            timestamp: new Date().toISOString(),
-            status: 'completed'
-          };
+      // Get access token
+      const accessToken = await getAccessToken();
+      
+      // Initiate M-Pesa payment
+      const paymentResponse = await initiateMpesaPayment(accessToken);
+      
+      if (paymentResponse.ResponseCode === "0") {
+        // Payment initiated successfully
+        const transaction = {
+          id: paymentResponse.CheckoutRequestID,
+          customerId,
+          phone: `+254${phone}`,
+          package: selectedPackage?.name,
+          duration: selectedPackage?.duration,
+          data: selectedPackage?.data,
+          amount: selectedPackage?.price,
+          timestamp: new Date().toISOString(),
+          status: 'pending'
+        };
 
-          // Store transaction in localStorage
-          const existingTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-          existingTransactions.push(transaction);
-          localStorage.setItem('transactions', JSON.stringify(existingTransactions));
+        // Store transaction in localStorage
+        const existingTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        existingTransactions.push(transaction);
+        localStorage.setItem('transactions', JSON.stringify(existingTransactions));
 
-          toast({
-            title: "Payment Successful! ✅",
-            description: `Transaction ID: ${data.transaction_id}`,
-          });
+        toast({
+          title: "Payment Initiated! 📱",
+          description: "Check your phone for M-Pesa prompt",
+        });
 
-          setIsDialogOpen(false);
-          setPhone("");
-          setSelectedPackage(null);
-        },
-        onclose: function() {
-          setIsLoading(false);
-        },
-        customizations: {
-          title: "Starnet Kenya",
-          description: `${selectedPackage?.duration} - ${selectedPackage?.data} Package`,
-        },
-      });
+        setIsDialogOpen(false);
+        setPhone("");
+        setSelectedPackage(null);
+      } else {
+        throw new Error(paymentResponse.errorMessage || "Payment failed");
+      }
     } catch (error) {
-      setIsLoading(false);
+      console.error("Payment error:", error);
       toast({
         title: "Payment Failed",
         description: "Please try again or contact support",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
