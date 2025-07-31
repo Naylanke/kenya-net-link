@@ -3,14 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STARNET KENYA</title>
+    <title>NEONET OGG</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWSLZ0PYPX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HWSLZ0PYPX');
+    </script>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="nav">
         <a href="index.html" class="nav-link active">Internet Packages</a>
-        <a href="admin.html" class="nav-link">Admin Panel</a>
+        <a href="dashboard.html" class="nav-link">User Dashboard</a>
     </nav>
 
     <!-- Main Content -->
@@ -26,7 +35,7 @@
                         <path d="m14.83 14.83 4.24 4.24"/>
                         <path d="m9.17 14.83-4.24 4.24"/>
                     </svg>
-                    STARNET KENYA
+                    NEONET OGG
                 </div>
                 <div class="subtitle">
                     <p class="subtitle-main">Affordable Internet Packages</p>
@@ -126,6 +135,27 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Firebase Configuration -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+      import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBbq3Qse4PW3pH0g-UqDzIZUQqPAJ_-R28",
+        authDomain: "nainetogg.firebaseapp.com",
+        databaseURL: "https://nainetogg-default-rtdb.firebaseio.com/",
+        projectId: "nainetogg",
+        storageBucket: "nainetogg.firebasestorage.app",
+        messagingSenderId: "1061859168118",
+        appId: "1:1061859168118:web:48a387edbde0cc0191f457",
+        measurementId: "G-HWSLZ0PYPX"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      window.database = getDatabase(app);
+      const analytics = getAnalytics(app);
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

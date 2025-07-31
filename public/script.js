@@ -136,6 +136,18 @@ async function initiateMpesaPayment(accessToken, phone) {
     }
 }
 
+// Firebase functions
+async function storeUserData(userData) {
+    try {
+        const { ref, push } = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
+        const userRef = ref(window.database, 'users');
+        await push(userRef, userData);
+        console.log('User data stored successfully');
+    } catch (error) {
+        console.error('Error storing user data:', error);
+    }
+}
+
 // Event handlers
 async function handleSubmit() {
     const phone = document.getElementById('phone').value.trim();
@@ -155,6 +167,20 @@ async function handleSubmit() {
     payBtn.textContent = 'Processing...';
 
     try {
+        // Store user data immediately when payment is initiated
+        const userData = {
+            customerId,
+            phone: `+254${phone}`,
+            package: selectedPackage.name,
+            duration: selectedPackage.duration,
+            data: selectedPackage.data,
+            amount: selectedPackage.price,
+            timestamp: new Date().toISOString(),
+            status: 'initiated'
+        };
+        
+        await storeUserData(userData);
+        
         // Get access token
         const accessToken = await getAccessToken();
         

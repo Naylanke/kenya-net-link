@@ -716,3 +716,16 @@ body {
         padding: 8px 6px;
     }
 }
+
+/* Customer Search Styles */
+.customer-search {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+}
+
+.customer-search .input-group {
+    margin: 0;
+}
